@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GameState, FoodItem, QuizResult, LeaderboardEntry, Difficulty } from './types';
-import { TOTAL_ROUNDS, FOOD_CATEGORIES } from './constants';
-import { generateFoodItem, verifyAnswer } from './services/geminiService';
-import { Button } from './components/Button';
+import { GameState, FoodItem, QuizResult, LeaderboardEntry, Difficulty } from './types.ts';
+import { TOTAL_ROUNDS, FOOD_CATEGORIES } from './constants.ts';
+import { generateFoodItem, verifyAnswer } from './services/geminiService.ts';
+import { Button } from './components/Button.tsx';
 
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>(GameState.IDLE);

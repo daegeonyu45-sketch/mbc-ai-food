@@ -1,14 +1,16 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { DEFAULT_MODELS } from "../constants";
-import { FoodItem, QuizResult, Difficulty } from "../types";
+import { DEFAULT_MODELS } from "../constants.ts";
+import { FoodItem, QuizResult, Difficulty } from "../types.ts";
 
-const getAI = () => new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+const getAI = () => {
+  const apiKey = (typeof process !== 'undefined' && process.env) ? process.env.API_KEY : '';
+  return new GoogleGenAI({ apiKey: apiKey || '' });
+};
 
 export const generateFoodItem = async (category: string, difficulty: Difficulty, excludeList: string[] = []): Promise<FoodItem> => {
   const ai = getAI();
   
-  // 무작위성을 높이기 위한 스타일 키워드
   const flavors = ["매콤한", "달콤한", "고소한", "담백한", "이색적인", "전통적인", "바삭한", "부드러운", "풍미 가득한"];
   const randomFlavor = flavors[Math.floor(Math.random() * flavors.length)];
   
@@ -56,9 +58,8 @@ export const generateFoodItem = async (category: string, difficulty: Difficulty,
     }
   });
 
-  const foodData = JSON.parse(response.text) as FoodItem;
+  const foodData = JSON.parse(response.text || '{}') as FoodItem;
 
-  // 이미지 생성 시 시각적 다양성을 위한 무작위 요소
   const styles = ["high-end restaurant plating", "street food style", "home-cooked meal vibe", "food magazine editorial shot"];
   const lightings = ["natural sunlight", "warm candle light", "bright studio lighting", "moody dim lighting"];
   const randomStyle = styles[Math.floor(Math.random() * styles.length)];
@@ -77,10 +78,12 @@ export const generateFoodItem = async (category: string, difficulty: Difficulty,
   });
 
   let imageUrl = "";
-  for (const part of imageResponse.candidates[0].content.parts) {
-    if (part.inlineData) {
-      imageUrl = `data:image/png;base64,${part.inlineData.data}`;
-      break;
+  if (imageResponse.candidates?.[0]?.content?.parts) {
+    for (const part of imageResponse.candidates[0].content.parts) {
+      if (part.inlineData) {
+        imageUrl = `data:image/png;base64,${part.inlineData.data}`;
+        break;
+      }
     }
   }
 
@@ -110,5 +113,5 @@ export const verifyAnswer = async (targetFood: string, userAnswer: string): Prom
     }
   });
 
-  return JSON.parse(response.text) as QuizResult;
+  return JSON.parse(response.text || '{"isCorrect":false, "feedback": "오류 발생"}') as QuizResult;
 };
